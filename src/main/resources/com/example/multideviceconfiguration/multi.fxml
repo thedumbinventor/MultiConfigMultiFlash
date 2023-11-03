@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.multideviceconfiguration.MultiUI">
+    <left>
+        <StackPane prefHeight="338.0" prefWidth="604.0" BorderPane.alignment="CENTER" />
+    </left>
+    <top>
+        <BorderPane maxWidth="-Infinity" minWidth="-Infinity" prefHeight="60.0" prefWidth="603.0" BorderPane.alignment="CENTER">
+            <bottom>
+                <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="32.0" prefWidth="603.0" BorderPane.alignment="CENTER" />
+            </bottom>
+            <top>
+                <MenuBar maxWidth="-Infinity" prefHeight="26.0" prefWidth="603.0" BorderPane.alignment="CENTER">
+                    <menus>
+                        <Menu mnemonicParsing="false" text="File">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#StopConfiguration" text="Stop Configuration" />
+                                <MenuItem mnemonicParsing="false" onAction="#StartConfiguration" text="Start Configuration" />
+                            </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Connection">
+                            <items>
+                              <Menu mnemonicParsing="false" onAction="#ConnectDevices" text="Connect Devices" />
+                              <Menu mnemonicParsing="false" onAction="#EjectDevices" text="Eject Devices" />
+                        <Menu mnemonicParsing="false" text="Load Devices">
+                          <items>
+                            <MenuItem mnemonicParsing="false" onAction="#LoadDevices" text="LoadDevices" />
+                          </items>
+                        </Menu>
+                            </items>
+                        </Menu>
+                    </menus>
+               <BorderPane.margin>
+                  <Insets />
+               </BorderPane.margin>
+                </MenuBar>
+            </top>
+            <left>
+                <VBox minWidth="-Infinity" prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #ffffcc;" BorderPane.alignment="CENTER">
+                    <children>
+                        <Label id="Device1" fx:id="Device1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="65.0" prefWidth="102.0" style="-fx-background-color: #e60000;" text="     Device 1" textAlignment="CENTER" textFill="WHITE">
+                            <font>
+                                <Font name="System Bold" size="16.0" />
+                            </font>
+                            <VBox.margin>
+                                <Insets top="3.0" />
+                            </VBox.margin>
+                        </Label>
+                        <Label fx:id="Device2" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="65.0" prefWidth="101.0" style="-fx-background-color: #e60000;" text="     Device 2" textAlignment="RIGHT" textFill="WHITE">
+                            <font>
+                                <Font name="System Bold" size="16.0" />
+                            </font>
+                            <VBox.margin>
+                                <Insets top="8.0" />
+                            </VBox.margin>
+                        </Label>
+                        <Label fx:id="Device3" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="65.0" prefWidth="101.0" style="-fx-background-color: #e60000;" text="     Device 3" textAlignment="RIGHT" textFill="WHITE">
+                            <font>
+                                <Font name="System Bold" size="16.0" />
+                            </font>
+                            <VBox.margin>
+                                <Insets top="8.0" />
+                            </VBox.margin>
+                        </Label>
+                        <Label fx:id="Device4" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="65.0" prefWidth="101.0" style="-fx-background-color: #e60000;" text="     Device 4" textAlignment="RIGHT" textFill="WHITE">
+                            <font>
+                                <Font name="System Bold" size="16.0" />
+                            </font>
+                            <VBox.margin>
+                                <Insets top="8.0" />
+                            </VBox.margin>
+                        </Label>
+                        <Label fx:id="Device5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="67.0" prefWidth="102.0" style="-fx-background-color: #e60000;" text="     Device 5" textAlignment="RIGHT" textFill="WHITE">
+                            <font>
+                                <Font name="System Bold" size="16.0" />
+                            </font>
+                            <VBox.margin>
+                                <Insets top="8.0" />
+                            </VBox.margin>
+                        </Label>
+                    </children>
+                </VBox>
+            </left>
+            <center>
+                <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+                    <children>
+                        <VBox prefHeight="74.0" prefWidth="467.0" style="-fx-background-color: #ffffcc;">
+                            <children>
+                                <Text fx:id="device1Info" lineSpacing="2.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Waiting to be configured...." textAlignment="CENTER" wrappingWidth="504.2075080871582">
+                                    <font>
+                                        <Font size="27.0" />
+                                    </font>
+                                </Text>
+                            </children>
+                        </VBox>
+                        <VBox prefHeight="74.0" prefWidth="503.0" style="-fx-background-color: #ffffcc;">
+                            <children>
+                                <Text fx:id="device2Info" strokeType="OUTSIDE" strokeWidth="0.0" text="Waiting to be configured..." textAlignment="CENTER" wrappingWidth="502.6076545715332">
+                                    <font>
+                                        <Font size="27.0" />
+                                    </font>
+                                </Text>
+                            </children>
+                        </VBox>
+                        <VBox prefHeight="73.0" prefWidth="503.0" style="-fx-background-color: #ffffcc;">
+                            <children>
+                                <Text fx:id="device3Info" strokeType="OUTSIDE" strokeWidth="0.0" text="Waiting to be configured..." textAlignment="CENTER" wrappingWidth="503.4075813293457">
+                                    <font>
+                                        <Font size="27.0" />
+                                    </font>
+                                </Text>
+                            </children>
+                        </VBox>
+                        <VBox prefHeight="73.0" prefWidth="503.0" style="-fx-background-color: #ffffcc;">
+                            <children>
+                                <Text fx:id="device4Info" strokeType="OUTSIDE" strokeWidth="0.0" text="Waiting to be configured..." textAlignment="CENTER" wrappingWidth="504.20756912231445">
+                                    <font>
+                                        <Font size="27.0" />
+                                    </font>
+                                </Text>
+                            </children>
+                        </VBox>
+                        <VBox prefHeight="73.0" prefWidth="503.0" style="-fx-background-color: #ffffcc;">
+                            <children>
+                                <Text fx:id="device5Info" strokeType="OUTSIDE" strokeWidth="0.0" text="Waiting to be configured..." textAlignment="CENTER" wrappingWidth="504.2076301574707">
+                                    <font>
+                                        <Font size="27.0" />
+                                    </font>
+                                </Text>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </center>
+        </BorderPane>
+    </top>
+   <bottom>
+      <ProgressBar fx:id="updateBar" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="20.0" prefWidth="744.0" progress="0.0" BorderPane.alignment="CENTER" />
+   </bottom>
+</BorderPane>
