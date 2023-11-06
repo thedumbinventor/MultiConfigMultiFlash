@@ -101,7 +101,7 @@
                             <children>
                                 <Text fx:id="device1Info" lineSpacing="2.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Waiting to be configured...." textAlignment="CENTER" wrappingWidth="504.2075080871582">
                                     <font>
-                                        <Font size="27.0" />
+                                        <Font size="15.0" />
                                     </font>
                                 </Text>
                             </children>
@@ -110,7 +110,7 @@
                             <children>
                                 <Text fx:id="device2Info" strokeType="OUTSIDE" strokeWidth="0.0" text="Waiting to be configured..." textAlignment="CENTER" wrappingWidth="502.6076545715332">
                                     <font>
-                                        <Font size="27.0" />
+                                        <Font size="15.0" />
                                     </font>
                                 </Text>
                             </children>
@@ -119,7 +119,7 @@
                             <children>
                                 <Text fx:id="device3Info" strokeType="OUTSIDE" strokeWidth="0.0" text="Waiting to be configured..." textAlignment="CENTER" wrappingWidth="503.4075813293457">
                                     <font>
-                                        <Font size="27.0" />
+                                        <Font size="15.0" />
                                     </font>
                                 </Text>
                             </children>
@@ -128,7 +128,7 @@
                             <children>
                                 <Text fx:id="device4Info" strokeType="OUTSIDE" strokeWidth="0.0" text="Waiting to be configured..." textAlignment="CENTER" wrappingWidth="504.20756912231445">
                                     <font>
-                                        <Font size="27.0" />
+                                        <Font size="15.0" />
                                     </font>
                                 </Text>
                             </children>
@@ -137,7 +137,7 @@
                             <children>
                                 <Text fx:id="device5Info" strokeType="OUTSIDE" strokeWidth="0.0" text="Waiting to be configured..." textAlignment="CENTER" wrappingWidth="504.2076301574707">
                                     <font>
-                                        <Font size="27.0" />
+                                        <Font size="15.0" />
                                     </font>
                                 </Text>
                             </children>

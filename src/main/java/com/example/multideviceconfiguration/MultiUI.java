@@ -26,8 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class MultiUI implements Initializable {
     @FXML
@@ -97,7 +96,7 @@ public class MultiUI implements Initializable {
     }
 
     @FXML
-    void ConnectDevices(ActionEvent event) throws InterruptedException {
+    void ConnectDevices(ActionEvent event) throws InterruptedException, IOException {
         BackgroundFill backgroundFill = new BackgroundFill(Color.GREEN, null, null);
         Background background = new Background(backgroundFill);
         Thread.sleep(2);
@@ -151,31 +150,34 @@ public class MultiUI implements Initializable {
     }
 
     @FXML
-    void EjectDevices(ActionEvent event) {
+    void EjectDevices(ActionEvent event) throws IOException, InterruptedException {
         BackgroundFill backgroundFill = new BackgroundFill(Color.RED, null, null);
         Background background = new Background(backgroundFill);
-        Device1.setBackground(background);
-        Device1.setText("  Device 1");
-        Device1.setAlignment(Pos.CENTER);
-        Device2.setBackground(background);
-        Device2.setText("  Device 2");
-        Device2.setAlignment(Pos.CENTER);
-        Device3.setBackground(background);
-        Device3.setText("  Device 3");
-        Device3.setAlignment(Pos.CENTER);
-        Device4.setBackground(background);
-        Device4.setText("  Device 4");
-        Device4.setAlignment(Pos.CENTER);
-        Device5.setBackground(background);
-        Device5.setText("  Device 5");
-        Device5.setAlignment(Pos.CENTER);
+
+        List<Label> devices = Arrays.asList(Device1, Device2, Device3, Device4, Device5);
+        String[] texts = {"Device 1", "Device 2", "Device 3", "Device 4", "Device 5"};
+
+        for (int i = 0; i < devices.size(); i++) {
+            Label device = devices.get(i);
+            device.setBackground(background);
+            device.setText("  " + texts[i]);
+            device.setAlignment(Pos.CENTER);
+        }
+        device1Info.setText("Waiting to be configured");device2Info.setText("Waiting to be configured");
+        device3Info.setText("Waiting to be configured");
+        device4Info.setText("Waiting to be configured");device5Info.setText("Waiting to be configured");
+
+
+
         for (int i = 0; i < portList.length; i++) {
             if (spandanList.get(i) != null) {
-                portList[i].closePort();
-                System.out.println("Port " + (i) + " closed.");
+                if(portList[i].isOpen()){
+                    outputStreams[i].write("\u001B".getBytes());
+                    Thread.sleep(5);
+                     portList[i].closePort();
+                System.out.println("Port " + (i) + " closed.");}
             }
         }
-
     }
 
     int click = 1;
@@ -217,15 +219,50 @@ public class MultiUI implements Initializable {
                 inputStreams[i] = serialPort.getInputStream();
                 outputStreams[i] = serialPort.getOutputStream();
             }
-        } catch (NullPointerException e) {
+        } catch (NullPointerException ignored) {
         }
     }
 
     void deviceVerification() {
-
     }
+    void microControllerIDFetcher() throws IOException, InterruptedException {
+        String GET_DID="";
+        HashMap<String, String> microcontrollerToDevice = new HashMap<>();
+        for (int i = 0; i < spandanList.size(); i++) {
+            //Fetching MID
+            outputStreams[i].write("GET_MID".getBytes());
+            Thread.sleep(10);
+                if (portList[i].bytesAvailable() > 0) {
+                    try {
+                        byte[] arr2 = new byte[portList[i].bytesAvailable()];
+                        inputStreams[i].read(arr2);
+                        String tempString = new String(arr2);
+                        microcontrollerToDevice.put(tempString,"SPLG-DN01-231031000"+(i+1));
+                        if(i==0) device1Info.setText(tempString +"-->>" +GET_DID+(i+1));
+                        if(i==1) device2Info.setText(tempString +"-->>" +GET_DID+(i+1));
+                        if(i==2) device3Info.setText(tempString +"-->>" +GET_DID+(i+1));
+                        if(i==3) device4Info.setText(tempString +"-->>" +GET_DID+(i+1));
+                        if(i==4) device5Info.setText(tempString +"-->>" +GET_DID+(i+1));
 
-    void configureDevices() {
+
+                    } catch (IOException ignored) {
+                    }
+                }
+                String microcontrollerID = "";
+                String deviceID = "";
+                for (String s : microcontrollerToDevice.keySet()) {
+                microcontrollerID = s;
+                deviceID = microcontrollerToDevice.get(microcontrollerID);
+
+            }
+            System.out.println("Microcontroller ID: " + microcontrollerID + " => Device ID: " + deviceID);
+
+
+        }
+    }
+    int confClick=0;
+    void configureDevices() throws IOException, InterruptedException {
+                microControllerIDFetcher();
         Thread deviceConfigure1 = new Thread(() -> {
             try {
                 Thread.sleep(2);
@@ -243,14 +280,20 @@ public class MultiUI implements Initializable {
                             String tempString = new String(arr2);
                             System.out.print(tempString);
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
                         }
                     }
                 }
-            } catch (IOException | InterruptedException e ) {
-                throw new RuntimeException(e);
+            } catch (IOException | InterruptedException ignored) {
+
             }
-        });deviceConfigure1.start();
+        });
+        if(confClick>0){
+            outputStreams=null;
+            inputStreams=null;
+            deviceConfigure1.isInterrupted();
+            confClick=0;
+        }
+//        deviceConfigure1.start();
 
     }
 

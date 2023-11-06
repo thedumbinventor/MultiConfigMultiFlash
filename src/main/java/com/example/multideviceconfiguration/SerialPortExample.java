@@ -30,9 +30,6 @@ public class SerialPortExample {
         OutputStream[] outputStreams = new OutputStream[DeviceCount];
 
 
-
-
-
         for (int i = 0; i < DeviceCount; i++) {
             SerialPort serialPort = SerialPort.getCommPort(spandanList.get(i)); // Replace with your actual port name
             serialPort.setComPortParameters(baudRate, StartBIT, StopBIT, ParityBIT);
@@ -48,7 +45,6 @@ public class SerialPortExample {
             }
         }
 
-        // Don't forget to close the ports and release resources when you're done.
         for (int i = 0; i < DeviceCount; i++) {
             if (serialPorts[i] != null) {
                 serialPorts[i].closePort();
