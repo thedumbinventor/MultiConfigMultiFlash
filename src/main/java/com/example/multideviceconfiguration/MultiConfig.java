@@ -17,7 +17,8 @@ public class MultiConfig extends Application {
         Scene scene = new Scene(root, 600, 400);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Multi Device Configuration");
-
+        // Set the stage to be non-resizable
+        primaryStage.setResizable(false);
         primaryStage.show();
 
     }
