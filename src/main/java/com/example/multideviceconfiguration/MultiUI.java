@@ -225,12 +225,35 @@ public class MultiUI implements Initializable {
         }
     }
 
+    //    String deviceID=MainUiSpandanNeo.deviceID;
+    void microControllerIDFetcher() throws IOException, InterruptedException {
+        String GET_DID = "";
+        HashMap<String, String> microcontrollerToDevice = new HashMap<>();
+        for (int i = 0; i < spandanList.size(); i++) {
+            Thread.sleep(10);
+            if (portList[i].bytesAvailable() > 0) {
+                byte[] arr2 = new byte[portList[i].bytesAvailable()];
+
+            }
+            String microcontrollerID = "";
+            String deviceID = "";
+            for (String s : microcontrollerToDevice.keySet()) {
+                microcontrollerID = s;
+                deviceID = microcontrollerToDevice.get(microcontrollerID);
+
+            }
+//            System.out.println("Microcontroller ID: " + microcontrollerID + " => Device ID: " + deviceID);
+
+
+        }
+    }
 
     String tempString = "";
     String mid = "";
     int confClick = 0;
 
     void configureDevices() throws IOException, InterruptedException, NoSuchAlgorithmException {
+        microControllerIDFetcher();
         Thread deviceConfigureThread = new Thread(() -> {
             try {
                 Thread.sleep(200); // Initial sleep for 2 seconds
@@ -241,7 +264,7 @@ public class MultiUI implements Initializable {
             for (int i = 0; i < k; i++) {
                 try {
 
-                    String did = "SPNE.DN01.2311169999";
+                    String did = "SET_DIDSPNE.DN01.23111699XX";
                     OutputStream outputStream1 = outputStreams[i];
                     InputStream inputStream1 = inputStreams[i];
                     outputStream1.write("ADMIN_SUNFOX".getBytes());
