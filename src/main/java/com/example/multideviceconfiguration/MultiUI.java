@@ -1,31 +1,29 @@
 package com.example.multideviceconfiguration;
 
-import com.fazecast.jSerialComm.SerialPortTimeoutException;
+import com.fazecast.jSerialComm.SerialPort;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import com.fazecast.jSerialComm.SerialPort;
-
-
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class MultiUI implements Initializable {
@@ -96,12 +94,12 @@ public class MultiUI implements Initializable {
     }
 
     @FXML
-    void ConnectDevices(ActionEvent event) throws InterruptedException, IOException {
+    void ConnectDevices(ActionEvent event) throws InterruptedException, IOException, NoSuchAlgorithmException {
         BackgroundFill backgroundFill = new BackgroundFill(Color.GREEN, null, null);
         Background background = new Background(backgroundFill);
         Thread.sleep(2);
         try {
-            if(!portList[0].isOpen()) {
+            if (!portList[0].isOpen()) {
                 if (portList[0].openPort()) {
                     inputStreams[0] = portList[0].getInputStream();
                     outputStreams[0] = portList[0].getOutputStream();
@@ -163,19 +161,21 @@ public class MultiUI implements Initializable {
             device.setText("  " + texts[i]);
             device.setAlignment(Pos.CENTER);
         }
-        device1Info.setText("Waiting to be configured");device2Info.setText("Waiting to be configured");
-        device3Info.setText("Waiting to be configured");
-        device4Info.setText("Waiting to be configured");device5Info.setText("Waiting to be configured");
-
+        device1Info.setText("Waiting to be configured...");
+        device2Info.setText("Waiting to be configured...");
+        device3Info.setText("Waiting to be configured...");
+        device4Info.setText("Waiting to be configured...");
+        device5Info.setText("Waiting to be configured...");
 
 
         for (int i = 0; i < portList.length; i++) {
             if (spandanList.get(i) != null) {
-                if(portList[i].isOpen()){
+                if (portList[i].isOpen()) {
                     outputStreams[i].write("\u001B".getBytes());
                     Thread.sleep(5);
-                     portList[i].closePort();
-                System.out.println("Port " + (i) + " closed.");}
+                    portList[i].closePort();
+                    System.out.println("Port " + (i) + " closed.");
+                }
             }
         }
     }
@@ -183,6 +183,7 @@ public class MultiUI implements Initializable {
     int click = 1;
     InputStream[] inputStreams;
     OutputStream[] outputStreams;
+    int k = 0;
 
     @FXML
     void LoadDevices(ActionEvent event) throws InterruptedException {
@@ -190,7 +191,7 @@ public class MultiUI implements Initializable {
             if (click > 1) {
                 portList = null;
                 spandanList = null;
-                click=0;
+                click = 0;
             }
             portList = SerialPort.getCommPorts();
             int DeviceCount = 0;
@@ -206,8 +207,9 @@ public class MultiUI implements Initializable {
             int StopBIT = 1;
             int ParityBIT = 0;
             SerialPort[] serialPorts = new SerialPort[DeviceCount];
-           inputStreams = new InputStream[DeviceCount];
-           outputStreams = new OutputStream[DeviceCount];
+            inputStreams = new InputStream[DeviceCount];
+            outputStreams = new OutputStream[DeviceCount];
+            k = DeviceCount;
 
             for (int i = 0; i < DeviceCount; i++) {
                 SerialPort serialPort = SerialPort.getCommPort(spandanList.get(i));
@@ -223,34 +225,19 @@ public class MultiUI implements Initializable {
         }
     }
 
-    void deviceVerification() {
-    }
+    //    String deviceID=MainUiSpandanNeo.deviceID;
     void microControllerIDFetcher() throws IOException, InterruptedException {
-        String GET_DID="";
+        String GET_DID = "";
         HashMap<String, String> microcontrollerToDevice = new HashMap<>();
         for (int i = 0; i < spandanList.size(); i++) {
-            //Fetching MID
-            outputStreams[i].write("GET_MID".getBytes());
             Thread.sleep(10);
-                if (portList[i].bytesAvailable() > 0) {
-                    try {
-                        byte[] arr2 = new byte[portList[i].bytesAvailable()];
-                        inputStreams[i].read(arr2);
-                        String tempString = new String(arr2);
-                        microcontrollerToDevice.put(tempString,"SPLG-DN01-231031000"+(i+1));
-                        if(i==0) device1Info.setText(tempString +"-->>" +GET_DID+(i+1));
-                        if(i==1) device2Info.setText(tempString +"-->>" +GET_DID+(i+1));
-                        if(i==2) device3Info.setText(tempString +"-->>" +GET_DID+(i+1));
-                        if(i==3) device4Info.setText(tempString +"-->>" +GET_DID+(i+1));
-                        if(i==4) device5Info.setText(tempString +"-->>" +GET_DID+(i+1));
+            if (portList[i].bytesAvailable() > 0) {
+                byte[] arr2 = new byte[portList[i].bytesAvailable()];
 
-
-                    } catch (IOException ignored) {
-                    }
-                }
-                String microcontrollerID = "";
-                String deviceID = "";
-                for (String s : microcontrollerToDevice.keySet()) {
+            }
+            String microcontrollerID = "";
+            String deviceID = "";
+            for (String s : microcontrollerToDevice.keySet()) {
                 microcontrollerID = s;
                 deviceID = microcontrollerToDevice.get(microcontrollerID);
 
@@ -260,43 +247,105 @@ public class MultiUI implements Initializable {
 
         }
     }
-    int confClick=0;
-    void configureDevices() throws IOException, InterruptedException {
-                microControllerIDFetcher();
-        Thread deviceConfigure1 = new Thread(() -> {
+
+    String tempString = "";
+    String mid = "";
+    int confClick = 0;
+
+    void configureDevices() throws IOException, InterruptedException, NoSuchAlgorithmException {
+        microControllerIDFetcher();
+        Thread deviceConfigureThread = new Thread(() -> {
             try {
-                Thread.sleep(2);
+                Thread.sleep(200); // Initial sleep for 2 seconds
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            try {
-                outputStreams[0].write("c".getBytes());
-                Thread.sleep(2);
-                while (true) {
-                    if (portList[0].bytesAvailable() > 0) {
-                        try {
-                            byte[] arr2 = new byte[portList[0].bytesAvailable()];
-                            inputStreams[0].read(arr2);
-                            String tempString = new String(arr2);
-                            System.out.print(tempString);
-                        } catch (IOException e) {
+            ArrayList<String> result = new ArrayList<>();
+            for (int i = 0; i < k; i++) {
+                try {
+
+                    String did = "SPNE.DN01.2311169999";
+                    OutputStream outputStream1 = outputStreams[i];
+                    InputStream inputStream1 = inputStreams[i];
+                    outputStream1.write("ADMIN_SUNFOX".getBytes());
+                    Thread.sleep(10);
+                    outputStream1.write("SET_DIDSPNE.DN01.2311169999".getBytes());
+                    Thread.sleep(10);
+                    outputStream1.write("GET_DID".getBytes());
+                    Thread.sleep(200);
+                    outputStream1.write("GET_MID".getBytes());
+                    Thread.sleep(200);
+                    while (true) {
+                        byte[] arr = new byte[portList[i].bytesAvailable()];
+                        if (portList[i].bytesAvailable() > 0) {
+                            inputStream1.read(arr);
+                            mid = new String(arr).substring(34);
+                            break;
+                        }
+
+                    }
+                    outputStream1.write("GET_INF".getBytes());
+                    Thread.sleep(200);
+                    String generatedHashValue = generateHash(asciiToHex(did), (mid));
+                    outputStream1.write(("SET_HAS" + generatedHashValue).getBytes());
+                    Thread.sleep(200);
+                    outputStream1.write(("GET_HAS" + generatedHashValue).getBytes());
+                    Thread.sleep(100);
+
+                    while (true) {
+                        if (portList[i].bytesAvailable() > 0) {
+                            try {
+                                byte[] arr2 = new byte[portList[i].bytesAvailable()];
+                                inputStream1.read(arr2);
+                                tempString = new String(arr2);
+                                System.out.println(tempString);
+                                break;
+
+                            } catch (Exception ignored) {
+                            }
                         }
                     }
+                } catch (IOException | InterruptedException | NoSuchAlgorithmException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException | InterruptedException ignored) {
-
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
-        if(confClick>0){
-            outputStreams=null;
-            inputStreams=null;
-            deviceConfigure1.isInterrupted();
-            confClick=0;
+        deviceConfigureThread.start();
+
+        if (confClick > 0) {
+            deviceConfigureThread.interrupt();
+            confClick = 0;
         }
-//        deviceConfigure1.start();
+
 
     }
 
+    private static String asciiToHex(String asciiStr) {
+        char[] chars = asciiStr.toCharArray();
+        StringBuilder hex = new StringBuilder();
+        for (char ch : chars) {
+            hex.append(Integer.toHexString(ch));
+        }
+        return hex.toString();
+    }
+
+    private String generateHash(String deviceId, String microControllerId) throws NoSuchAlgorithmException {
+        String hashInput = deviceId + microControllerId;
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hash = md.digest(hashInput.getBytes(StandardCharsets.UTF_8));
+        BigInteger number = new BigInteger(1, hash);
+        StringBuilder hexString = new StringBuilder(number.toString(16));
+
+        while (hexString.length() < 64) {
+            hexString.insert(0, '0');
+        }
+        return hexString.toString();
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
