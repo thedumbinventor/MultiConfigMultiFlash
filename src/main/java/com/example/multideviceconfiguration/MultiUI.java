@@ -3,12 +3,14 @@ package com.example.multideviceconfiguration;
 import com.fazecast.jSerialComm.SerialPort;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -16,20 +18,27 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigInteger;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MultiUI implements Initializable {
     @FXML
     private Menu Connect;
+    @FXML
+    private MenuItem flashLegacy;
 
+    @FXML
+    private MenuItem flashNeo;
+
+    @FXML
+    private MenuItem flashPro;
     @FXML
     private Label Device1;
 
@@ -65,33 +74,22 @@ public class MultiUI implements Initializable {
     SerialPort[] portList;
     ArrayList<String> spandanList
             = new ArrayList<>();
-    Timeline timeline;
+
 
     @FXML
     void StartConfiguration(ActionEvent event) {
-        timeline = new Timeline(
-                new KeyFrame(Duration.ZERO, e -> updateBar.setProgress(0.0)),
-                new KeyFrame(Duration.seconds(1), e -> updateBar.setProgress(0.2)),
-                new KeyFrame(Duration.seconds(2), e -> updateBar.setProgress(0.4)),
-                new KeyFrame(Duration.seconds(3), e -> updateBar.setProgress(0.6)),
-                new KeyFrame(Duration.seconds(4), e -> updateBar.setProgress(0.8)),
-                new KeyFrame(Duration.seconds(5), e -> updateBar.setProgress(1.0))
-
-        );
+        updateBar.setProgress(0.0);
 
 
-        timeline.play();
     }
 
     int deviceFlag1 = 0, deviceFlag2 = 0, deviceFlag3 = 0, deviceFlag4 = 0, deviceFlag5 = 0;
 
     @FXML
     void StopConfiguration(ActionEvent event) {
-        if (timeline != null) {
             updateBar.setProgress(0.0); // Reset the progress bar
-            timeline.stop();
         }
-    }
+
 
     @FXML
     void ConnectDevices(ActionEvent event) throws InterruptedException, IOException, NoSuchAlgorithmException {
@@ -264,7 +262,7 @@ public class MultiUI implements Initializable {
             for (int i = 0; i < k; i++) {
                 try {
 
-                    String did = "SET_DIDSPNE.DN01.23111699XX";
+                    String did = "SET_DIDSPPR.DN01.2311169969";
                     OutputStream outputStream1 = outputStreams[i];
                     InputStream inputStream1 = inputStreams[i];
                     outputStream1.write("ADMIN_SUNFOX".getBytes());
@@ -282,11 +280,10 @@ public class MultiUI implements Initializable {
                             mid = new String(arr).substring(34);
                             break;
                         }
-
                     }
                     outputStream1.write("GET_INF".getBytes());
                     Thread.sleep(200);
-                    String generatedHashValue = generateHash(asciiToHex(did), (mid));
+                    String generatedHashValue = generateHash(asciiToHex("SPPR.DN01.2311169969"), (mid));
                     outputStream1.write(("SET_HAS" + generatedHashValue).getBytes());
                     Thread.sleep(200);
                     outputStream1.write(("GET_HAS" + generatedHashValue).getBytes());
@@ -334,7 +331,7 @@ public class MultiUI implements Initializable {
         return hex.toString();
     }
 
-    private String generateHash(String deviceId, String microControllerId) throws NoSuchAlgorithmException {
+    private static String generateHash(String deviceId, String microControllerId) throws NoSuchAlgorithmException {
         String hashInput = deviceId + microControllerId;
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         byte[] hash = md.digest(hashInput.getBytes(StandardCharsets.UTF_8));
@@ -351,6 +348,112 @@ public class MultiUI implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
     }
+
+String fname="";
+    static String progress1="";
+    static int p=0;
+
+    @FXML
+    void flashLegacy(ActionEvent event) {
+        fname="LG";
+            flash(fname,"flash");
+
+    }
+
+    @FXML
+    void flashNeo(ActionEvent event) {
+        fname="neo";
+        flash(fname,"flash");
+    }
+
+    @FXML
+    void flashPro(ActionEvent event) {
+        fname="pro";
+        flash(fname,"flash");
+    }
+
+    @FXML
+    void memoryErase(ActionEvent event) {
+        flash("LG","erase");
+
+    }
+
+    public  void flash(String fname, String operation ) {
+        String stLinkCliPath = "STM32 ST-LINK Utility\\ST-LINK Utility\\ST-LINK_CLI.exe";
+        String binaryFilePath="";
+        if(fname.contains("neo")) binaryFilePath = "C:\\Users\\techn\\Downloads\\MultiDeviceConfiguration\\SpandanNeo Firmware\\Spandan_neo_v001.00.hex";
+        if(fname.contains("LG")) binaryFilePath = "C:\\Users\\techn\\Downloads\\MultiDeviceConfiguration\\SpandanLegacy Firmware\\Spandan_V0.9.hex";
+        if(fname.contains("pro")) binaryFilePath = "C:\\Users\\techn\\Downloads\\MultiDeviceConfiguration\\SpandanPro Firmware\\Spandan_Pro_Mux_V000.01.hex";
+
+        String workingDirectory = "STM32 ST-LINK Utility\\ST-LINK Utility";
+        // Flash command
+        List<String> flashCommand = new ArrayList<>();
+        flashCommand.add(stLinkCliPath);
+        flashCommand.add("-P");
+        flashCommand.add("\"" + binaryFilePath + "\"");
+        flashCommand.add("0x08000000");
+        flashCommand.add("-V");
+        // Erase command
+        List<String> eraseCommand = new ArrayList<>();
+        eraseCommand.add(stLinkCliPath);
+        eraseCommand.add("-ME");
+        // Option Bytes command
+        List<String> optionBytesCommand = new ArrayList<>();
+        optionBytesCommand.add(stLinkCliPath);
+        optionBytesCommand.add("-OB");
+        optionBytesCommand.add("RDP=0");
+        optionBytesCommand.add("USER=0x08000000");
+        try {
+            // Flash the binary
+            if(operation.equalsIgnoreCase("flash"))
+                executeCommand(flashCommand, workingDirectory);
+
+            if(operation.equalsIgnoreCase("erase")){
+                executeCommand(optionBytesCommand, workingDirectory);
+                executeCommand(eraseCommand, workingDirectory);
+            }
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    private  void printProgress(String line) throws InterruptedException {
+        String progressRegex = "\\b(\\d{1,3}%)\\b";
+        Pattern pattern = Pattern.compile(progressRegex);
+        Matcher matcher = pattern.matcher(line);
+
+        while (matcher.find()) {
+             progress1 = matcher.group(1);
+             p=Integer.parseInt(progress1.substring(0,progress1.lastIndexOf('%')));
+            System.out.println("Progress: " + progress1);
+
+            Platform.runLater(()-> updateBar.setProgress(p));
+
+        }
+    }
+    private  void executeCommand(List<String> command, String workingDirectory) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        processBuilder.directory(new java.io.File(workingDirectory));
+
+        Process process = processBuilder.start();
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))){
+            String line;
+            while ((line = reader.readLine()) != null) {
+                printProgress(line);
+
+            }
+        }
+        int exitCode = process.waitFor();
+        if (exitCode == 0) {
+            System.out.println("Command successful!");
+        } else {
+            System.out.println("Command failed. Exit code: " + exitCode);
+        }
+    }
+
+
+
 
 }
 
