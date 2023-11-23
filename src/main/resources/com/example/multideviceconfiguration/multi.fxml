@@ -30,8 +30,6 @@
                         <MenuItem mnemonicParsing="false" onAction="#flashLegacy" text="Flash Spandan Legacy" />
                         <MenuItem mnemonicParsing="false" onAction="#flashPro" text="Flash Spandan Pro" />
                         <MenuItem mnemonicParsing="false" onAction="#flashNeo" text="Flash Spandan Neo" />
-                                <MenuItem mnemonicParsing="false" onAction="#StopConfiguration" text="Stop Configuration" />
-                                <MenuItem mnemonicParsing="false" onAction="#StartConfiguration" text="Start Configuration" />
                         <MenuItem mnemonicParsing="false" onAction="#memoryErase" text="Erase Flash" />
                             </items>
                         </Menu>
