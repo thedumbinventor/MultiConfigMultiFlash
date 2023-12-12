@@ -5,10 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-
 public class MultiConfig extends Application {
-
     @Override
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("multi.fxml"));
@@ -17,7 +14,6 @@ public class MultiConfig extends Application {
         Scene scene = new Scene(root, 600, 400);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Multi Device Configuration");
-        // Set the stage to be non-resizable
         primaryStage.setResizable(false);
         primaryStage.show();
 

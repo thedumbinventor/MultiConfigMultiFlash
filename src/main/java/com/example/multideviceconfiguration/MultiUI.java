@@ -139,7 +139,7 @@ public class MultiUI implements Initializable {
                 Device5.setAlignment(Pos.CENTER);
 
             }
-        } catch (ArrayIndexOutOfBoundsException ignored) {
+        } catch (Exception e) {
 
         }
         configureDevices();
@@ -147,34 +147,44 @@ public class MultiUI implements Initializable {
 
     @FXML
     void EjectDevices(ActionEvent event) throws IOException, InterruptedException {
-        BackgroundFill backgroundFill = new BackgroundFill(Color.RED, null, null);
-        Background background = new Background(backgroundFill);
-
-        List<Label> devices = Arrays.asList(Device1, Device2, Device3, Device4, Device5);
-        String[] texts = {"Device 1", "Device 2", "Device 3", "Device 4", "Device 5"};
-
-        for (int i = 0; i < devices.size(); i++) {
-            Label device = devices.get(i);
-            device.setBackground(background);
-            device.setText("  " + texts[i]);
-            device.setAlignment(Pos.CENTER);
-        }
-        device1Info.setText("Waiting to be configured...");
-        device2Info.setText("Waiting to be configured...");
-        device3Info.setText("Waiting to be configured...");
-        device4Info.setText("Waiting to be configured...");
-        device5Info.setText("Waiting to be configured...");
+        try {
 
 
-        for (int i = 0; i < portList.length; i++) {
-            if (spandanList.get(i) != null) {
-                if (portList[i].isOpen()) {
-                    outputStreams[i].write("\u001B".getBytes());
-                    Thread.sleep(5);
-                    portList[i].closePort();
-                    System.out.println("Port " + (i) + " closed.");
+            BackgroundFill backgroundFill = new BackgroundFill(Color.RED, null, null);
+            Background background = new Background(backgroundFill);
+
+            List<Label> devices = Arrays.asList(Device1, Device2, Device3, Device4, Device5);
+            String[] texts = {"Device 1", "Device 2", "Device 3", "Device 4", "Device 5"};
+
+            for (int i = 0; i < devices.size(); i++) {
+                Label device = devices.get(i);
+                device.setBackground(background);
+                device.setText("  " + texts[i]);
+                device.setAlignment(Pos.CENTER);
+            }
+            device1Info.setText("Waiting to be configured...");
+            device2Info.setText("Waiting to be configured...");
+            device3Info.setText("Waiting to be configured...");
+            device4Info.setText("Waiting to be configured...");
+            device5Info.setText("Waiting to be configured...");
+
+
+            for (int i = 0; i < portList.length; i++) {
+                if (spandanList.get(i) != null) {
+                    if (portList[i].isOpen()) {
+                        try {
+                            outputStreams[i].write("\u001B".getBytes());
+                            Thread.sleep(5);
+                            portList[i].closePort();
+                            System.out.println("Port " + (i) + " closed.");
+                        } catch (Exception e) {
+                        }
+
+                    }
                 }
             }
+        } catch (Exception e) {
+
         }
     }
 
@@ -199,7 +209,6 @@ public class MultiUI implements Initializable {
                     DeviceCount++;
                 }
             }
-
             int baudRate = 115200;
             int StartBIT = 8;
             int StopBIT = 1;
@@ -219,14 +228,17 @@ public class MultiUI implements Initializable {
                 inputStreams[i] = serialPort.getInputStream();
                 outputStreams[i] = serialPort.getOutputStream();
             }
+
         } catch (NullPointerException ignored) {
         }
     }
+    ///////////////////////////////////////////////////////////CONFIGURATION OF THE DEVICES//////////////////////////////////////////
     String tempString = "";
     String mid = "";
     int confClick = 0;
+    List<String> upcomingConfigurationDevicesList = new ArrayList<>(List.of("SPPR-DN01-23111TEST1","SPPR.DN01.23111TEST2","SPPR.DN01.2311169971","SPPR.DN01.2311169972"));
 
-    void configureDevices() throws IOException, InterruptedException, NoSuchAlgorithmException {
+    void configureDevices(){
         Thread deviceConfigureThread = new Thread(() -> {
             try {
                 Thread.sleep(200);
@@ -235,17 +247,22 @@ public class MultiUI implements Initializable {
             }
             for (int i = 0; i < k; i++) {
                 try {
-                    String did = "SET_DIDSPPR.DN01.2311169969";
+                    String did = "SET_DID"+upcomingConfigurationDevicesList.get(i);
                     OutputStream outputStream1 = outputStreams[i];
                     InputStream inputStream1 = inputStreams[i];
                     outputStream1.write("ADMIN_SUNFOX".getBytes());
                     Thread.sleep(10);
                     outputStream1.write(did.getBytes());
+                    int finalI = i;
+                    Platform.runLater(()->{
+                        device1Info.setText("DID----->" + upcomingConfigurationDevicesList.get(finalI)+"\n");
+                    });
                     Thread.sleep(10);
                     outputStream1.write("GET_DID".getBytes());
                     Thread.sleep(200);
                     outputStream1.write("GET_MID".getBytes());
                     Thread.sleep(200);
+
                     while (true) {
                         byte[] arr = new byte[portList[i].bytesAvailable()];
                         if (portList[i].bytesAvailable() > 0) {
@@ -254,11 +271,17 @@ public class MultiUI implements Initializable {
                             break;
                         }
                     }
+                    Platform.runLater(()->{
+                        device1Info.setText("MID----->" + mid+"\n");
+                    });
                     outputStream1.write("GET_INF".getBytes());
                     Thread.sleep(200);
-                    String generatedHashValue = generateHash(asciiToHex("SPPR.DN01.2311169969"), (mid));
+                    String generatedHashValue = generateHash(asciiToHex(upcomingConfigurationDevicesList.get(i)), (mid));
                     outputStream1.write(("SET_HAS" + generatedHashValue).getBytes());
                     Thread.sleep(200);
+                    Platform.runLater(()->{
+                        device1Info.setText("HAS----->" + generatedHashValue+"\n");
+                    });
                     outputStream1.write(("GET_HAS" + generatedHashValue).getBytes());
                     Thread.sleep(100);
                     while (true) {
@@ -269,7 +292,6 @@ public class MultiUI implements Initializable {
                                 tempString = new String(arr2);
                                 System.out.println(tempString);
                                 break;
-
                             } catch (Exception ignored) {
                             }
                         }
@@ -317,8 +339,8 @@ public class MultiUI implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
     }
-
-String fname="";
+//////////////////////////////////////////////////////////////FLASHING SCENARIO//////////////////////////////////////////////////////////
+    String fname="";
     static String progress1="";
     static int p=0;
 
@@ -352,7 +374,7 @@ String fname="";
         String binaryFilePath="";
         if(fname.contains("neo")) binaryFilePath = "C:\\Users\\techn\\Downloads\\MultiDeviceConfiguration\\SpandanNeo Firmware\\Spandan_neo_v001.00.hex";
         if(fname.contains("LG")) binaryFilePath = "C:\\Users\\techn\\Downloads\\MultiDeviceConfiguration\\SpandanLegacy Firmware\\Spandan_V0.9.hex";
-        if(fname.contains("pro")) binaryFilePath = "C:\\Users\\techn\\Downloads\\MultiDeviceConfiguration\\SpandanPro Firmware\\Spandan_Pro_Mux_V000.01.hex";
+        if(fname.contains("pro")) binaryFilePath = "C:\\Users\\techn\\Downloads\\MultiDeviceConfiguration\\SpandanPro Firmware\\Spandan_Pro_Mux_V0.3.hex";
 
         String workingDirectory = "STM32 ST-LINK Utility\\ST-LINK Utility";
         // Flash command
